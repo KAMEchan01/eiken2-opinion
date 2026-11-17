@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>英検2級 意見トレーナー</title>
+<style>
+:root{
+  --bg:#f6f4ef; --card:#ffffff; --ink:#1f2a37; --sub:#5b6676; --line:#e4e0d6;
+  --main:#2f6fdb; --main-soft:#e7efff; --ok:#1f9d6b; --ok-soft:#e3f6ee; --warn:#d9822b; --warn-soft:#fdf0e1;
+  --no:#c2416b; --no-soft:#fbe7ee; --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 18px 10px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:18px;letter-spacing:.02em}
+header .countdown{font-size:13px;color:var(--sub)}
+main{max-width:640px;margin:0 auto;padding:14px 14px 110px}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:10;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;padding:10px 0 12px;font-size:12px;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit}
+nav button .ic{font-size:20px;line-height:1}
+nav button.on{color:var(--main);font-weight:700}
+.view{display:none}.view.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+h2{font-size:17px;margin:4px 0 10px}
+h3{font-size:15px;margin:14px 0 6px}
+.sub{color:var(--sub);font-size:14px}
+.small{font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--main);color:#fff}
+.btn.ghost{background:var(--main-soft);color:var(--main)}
+.btn.line{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>.btn{flex:1}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;-webkit-overflow-scrolling:touch}
+.chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-family:inherit;color:var(--ink)}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--main-soft);color:var(--main);margin-right:6px}
+.tag.t4{background:var(--warn-soft);color:var(--warn)}
+.tag.yes{background:var(--ok-soft);color:var(--ok)}
+.tag.no{background:var(--no-soft);color:var(--no)}
+.qen{font-size:19px;font-weight:600;line-height:1.5;margin:10px 0 6px;font-family:Georgia,"Times New Roman",serif}
+.qja{font-size:14px;color:var(--sub);background:#faf8f3;border-radius:10px;padding:8px 10px;margin-top:6px}
+.linkbtn{border:0;background:none;color:var(--main);font-size:14px;padding:4px 0;font-family:inherit;cursor:pointer}
+.side{display:flex;gap:10px;margin-top:12px}
+.side button{flex:1;padding:16px 8px;border-radius:14px;border:2px solid var(--line);background:#fff;font-size:16px;font-weight:700;font-family:inherit;color:var(--ink)}
+.side button.y{border-color:var(--ok);color:var(--ok)}
+.side button.n{border-color:var(--no);color:var(--no)}
+textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:17px;line-height:1.6;font-family:Georgia,"Times New Roman",serif;resize:vertical;background:#fff;color:var(--ink)}
+textarea:focus{outline:2px solid var(--main-soft);border-color:var(--main)}
+.timer{display:flex;align-items:center;justify-content:space-between;background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;margin:12px 0}
+.timer .t{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.timer .g{font-size:12px;opacity:.8;text-align:right}
+.hint{background:var(--main-soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
+.hint b{color:var(--main)}
+.checks label{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line);font-size:15px}
+.checks label:last-child{border-bottom:0}
+.checks input{width:20px;height:20px;margin-top:2px;flex:none}
+.auto{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.auto span{font-size:13px;padding:4px 10px;border-radius:999px;background:#f0eee8}
+.auto span.good{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.auto span.bad{background:var(--warn-soft);color:var(--warn);font-weight:700}
+.model{border-left:4px solid var(--ok);padding:8px 12px;background:#fbfdfb;border-radius:0 10px 10px 0;margin:8px 0;font-family:Georgia,"Times New Roman",serif;font-size:16px}
+.model.n{border-color:var(--no);background:#fefafb}
+.model .lab{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;font-size:12px;font-weight:700;color:var(--sub);display:block;margin-bottom:2px}
+.ai{background:#fff8ec;border:1px solid #f1dcb4;border-radius:12px;padding:12px;margin-top:10px}
+.ai .score{font-size:24px;font-weight:800;color:var(--warn)}
+.ai ul{margin:6px 0;padding-left:20px}
+.ai .fix{font-family:Georgia,"Times New Roman",serif;background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px}
+details{border:1px solid var(--line);border-radius:12px;padding:0 14px;margin-bottom:10px;background:#fff}
+details summary{padding:12px 0;font-weight:700;cursor:pointer;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";float:right;color:var(--sub)}
+details[open] summary::after{content:"－"}
+details .in{padding-bottom:12px}
+.phr{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.phr .e{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:15px}
+.stock-item{border-top:1px solid var(--line);padding:12px 0}
+.stock-item:first-child{border-top:0}
+.stock-item .ans{font-family:Georgia,"Times New Roman",serif;margin-top:6px;white-space:pre-wrap}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stat div{background:#faf8f3;border-radius:12px;padding:10px 4px}
+.stat b{display:block;font-size:24px}
+.bar{height:8px;background:#eee9df;border-radius:99px;overflow:hidden;margin:4px 0 10px}
+.bar i{display:block;height:100%;background:var(--main)}
+input[type=date]{font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-family:inherit}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:20}
+.toast.on{opacity:1}
+.hidden{display:none!important}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.flow{counter-reset:s;padding-left:0;list-style:none;margin:6px 0}
+.flow li{counter-increment:s;padding:6px 0 6px 34px;position:relative}
+.flow li::before{content:counter(s);position:absolute;left:0;top:6px;width:24px;height:24px;border-radius:50%;background:var(--main);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.ex{font-family:Georgia,"Times New Roman",serif;background:#faf8f3;border-radius:10px;padding:10px 12px;margin:6px 0}
+.ex .examiner{color:var(--sub)}
+</style>
+</head>
+<body>
+<header>
+  <h1>英検2級 意見トレーナー <span class="sub small">No.3・No.4</span></h1>
+  <div class="countdown" id="hdrCount">記録タブで試験日を設定すると、残り日数が出ます</div>
+</header>
+
+<main>
+<!-- ============ 学ぶ ============ -->
+<section class="view" id="v-learn">
+  <div class="card">
+    <h2>No.3・No.4 はこんな問題</h2>
+    <p class="sub">問題カードを裏返したあと、自分の意見を聞かれる2問です。カードを見ずに答えます。</p>
+    <h3>No.3（賛成？反対？）</h3>
+    <div class="ex"><span class="examiner">Examiner:</span> Some people say that ~. What do you think about that?</div>
+    <p class="small sub">→ <b>I agree. / I disagree.</b> で始めて、理由を2文。</p>
+    <h3>No.4（Yes？No？）</h3>
+    <div class="ex"><span class="examiner">Examiner:</span> Today, ~. Do you think ~?<br>You: <b>Yes.</b> / <b>No.</b><br><span class="examiner">Examiner:</span> Why? / Why not?<br>You: 理由を2文。</div>
+  </div>
+
+  <div class="card">
+    <h2>合格の「型」はこれだけ</h2>
+    <ol class="flow">
+      <li><b>意見を一言で</b>：I agree. / I disagree. / Yes. / No.</li>
+      <li><b>理由①</b>：短い文で1つ目の理由</li>
+      <li><b>理由②か具体例</b>：Also, ～ / For example, ～</li>
+    </ol>
+    <div class="ex">I agree. Many people sit at their desks for many hours every day. <b>Also,</b> they use cars or trains instead of walking.</div>
+    <p class="small sub">目安は <b>合計2〜3文・20〜30秒</b>。長くて崩れるより、短くて正しい文を2つ言う方が点になります。</p>
+  </div>
+
+  <details>
+    <summary>使えるフレーズ集</summary>
+    <div class="in">
+      <h3>意見を言う</h3>
+      <div class="phr">
+        <span class="e">I agree.</span><span>賛成です</span>
+        <span class="e">I disagree.</span><span>反対です</span>
+        <span class="e">Yes. / No.</span><span>No.4 はまずこれだけでOK</span>
+        <span class="e">I think so. / I don't think so.</span><span>そう思う／思わない</span>
+      </div>
+      <h3>理由をつなぐ</h3>
+      <div class="phr">
+        <span class="e">First, ~ . Also, ~ .</span><span>まず～。また～。</span>
+        <span class="e">This is because ~ .</span><span>なぜなら～</span>
+        <span class="e">For example, ~ .</span><span>たとえば～</span>
+        <span class="e">As a result, ~ .</span><span>その結果～</span>
+        <span class="e">In addition, ~ .</span><span>さらに～</span>
+      </div>
+      <h3>どんなテーマでも使える理由</h3>
+      <div class="phr">
+        <span class="e">It is convenient / useful.</span><span>便利・役に立つ</span>
+        <span class="e">It saves time / money.</span><span>時間・お金の節約</span>
+        <span class="e">It costs a lot of money.</span><span>お金がかかる</span>
+        <span class="e">It is good for the environment.</span><span>環境に良い</span>
+        <span class="e">It is good for our health.</span><span>健康に良い</span>
+        <span class="e">People can communicate more.</span><span>交流が増える</span>
+        <span class="e">It is dangerous / not safe.</span><span>危ない</span>
+      </div>
+      <h3>詰まったとき（黙るよりずっと良い）</h3>
+      <div class="phr">
+        <span class="e">Well, ... / Let me see...</span><span>えーと…（考える時間をかせぐ）</span>
+        <span class="e">That's a difficult question, but ...</span><span>難しいですが…</span>
+        <span class="e">I'm sorry. Could you repeat the question?</span><span>質問をもう一度お願いします</span>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>やりがちなミス</summary>
+    <div class="in">
+      <ul>
+        <li><b>意見だけで終わる</b>：「I agree.」だけでは点になりません。必ず理由を続けます。</li>
+        <li><b>理由が1つだけ</b>：Also / For example で、もう1文足しましょう。</li>
+        <li><b>長い沈黙</b>：まず Well, ... と声を出してから考えます。</li>
+        <li><b>テーマからずれる</b>：質問のキーワードを答えの中でもう一度使うと、ずれにくくなります。</li>
+        <li><b>長すぎる1文</b>：and, because でつなぎすぎると文法が崩れます。文は短く切りましょう。</li>
+        <li><b>日本語が出る</b>：「えっと」ではなく「Well,」と言うクセをつけましょう。</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>このアプリの使い方</summary>
+    <div class="in">
+      <ol>
+        <li>「練習」で問題を出し、どちらの立場で答えるか選ぶ</li>
+        <li><b>まず声に出して答える</b>。そのあと、キーボードのマイクボタン（音声入力）で答えを入力する</li>
+        <li>セルフチェックとお手本を見て直し、「ストックに保存」</li>
+        <li>「反対の立場でも」で、逆の意見でも言えるようにする</li>
+        <li>「ストック」で、答えを隠して暗唱テスト</li>
+      </ol>
+      <p class="small sub">保存したデータは、このスマホのブラウザだけに残ります。機種変更の前などには「記録」タブでバックアップしてください。</p>
+    </div>
+  </details>
+  <button class="btn block" onclick="go('practice')">練習をはじめる →</button>
+</section>
+
+<!-- ============ 練習 ============ -->
+<section class="view" id="v-practice">
+  <div class="chips" id="themeChips"></div>
+  <div class="chips" id="typeChips"></div>
+
+  <div class="card" id="qCard">
+    <div><span class="tag" id="qNo">No.3</span><span class="tag" style="background:#f0eee8;color:var(--sub)" id="qTheme"></span></div>
+    <div class="qen" id="qEn"></div>
+    <div class="row" style="gap:14px">
+      <button class="linkbtn" id="jaBtn">日本語訳を見る</button>
+      <button class="linkbtn hidden" id="speakQ">🔊 読み上げ</button>
+    </div>
+    <div class="qja hidden" id="qJa"></div>
+
+    <div id="stepSide">
+      <p class="sub small" style="margin:12px 0 0">どちらの立場で答える？（タップするとタイマー開始）</p>
+      <div class="side">
+        <button class="y" id="sideY">I agree</button>
+        <button class="n" id="sideN">I disagree</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn line" id="nextQ">別の問題</button>
+        <button class="btn ghost hidden" id="aiNewQ">✨ AIが新しい問題を作る</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="stepAnswer">
+    <div class="timer"><div class="t" id="tm">0</div><div class="g">秒<br>目安 20〜30秒</div></div>
+    <div class="hint" id="tmpl"></div>
+    <p class="small sub" style="margin:4px 0 8px">① まず声に出して答える → ② キーボードの🎤（音声入力）で入力</p>
+    <textarea id="ans" placeholder="ここに英語で答えを入力"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="btn line hidden" id="dictBtn">🎤 音声で入力</button>
+      <button class="btn" id="doneBtn">答え終わった</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="stepCheck">
+    <h2>ふりかえり</h2>
+    <div class="auto" id="autoTags"></div>
+    <div class="checks" id="selfChecks"></div>
+
+    <h3>お手本</h3>
+    <div id="modelMine"></div>
+    <button class="linkbtn" id="showOther">反対の立場のお手本も見る</button>
+    <div id="modelOther" class="hidden"></div>
+
+    <div id="aiArea" class="hidden">
+      <button class="btn ghost block" id="aiBtn" style="margin-top:10px">✨ AIに添削してもらう</button>
+      <div id="aiOut"></div>
+    </div>
+    <div id="copyArea">
+      <button class="btn line block" id="copyPrompt" style="margin-top:10px">📋 AI添削用の文章をコピー</button>
+      <p class="small sub" style="margin:4px 0 0">コピーした文章をClaudeなどのAIに貼り付けると、添削してもらえます。</p>
+    </div>
+
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="saveBtn">ストックに保存</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn line" id="retrySame">もう一回</button>
+      <button class="btn line" id="retryOther">反対の立場でも</button>
+    </div>
+    <button class="btn ghost block" id="nextQ2" style="margin-top:8px">次の問題へ →</button>
+  </div>
+</section>
+
+<!-- ============ ストック ============ -->
+<section class="view" id="v-stock">
+  <div class="card">
+    <h2>意見ストック</h2>
+    <p class="sub small">保存した答えです。「答えを見る」を押す前に、まず声に出して言えるか試しましょう。</p>
+    <div class="chips" id="stockChips"></div>
+    <div class="row" style="margin-bottom:6px">
+      <button class="btn ghost" id="quizBtn">🎲 ランダム暗唱テスト</button>
+    </div>
+    <div id="stockList"></div>
+  </div>
+</section>
+
+<!-- ============ 記録 ============ -->
+<section class="view" id="v-record">
+  <div class="card">
+    <h2>試験日</h2>
+    <div class="row" style="align-items:center">
+      <input type="date" id="examDate">
+      <span class="sub small" id="examLeft"></span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>がんばり記録</h2>
+    <div class="stat">
+      <div><b id="stTotal">0</b><span class="small sub">練習回数</span></div>
+      <div><b id="stDays">0</b><span class="small sub">練習した日</span></div>
+      <div><b id="stStreak">0</b><span class="small sub">連続日数</span></div>
+    </div>
+    <h3>テーマごとのストック数</h3>
+    <div id="themeBars"></div>
+  </div>
+  <div class="card">
+    <h2>バックアップ</h2>
+    <p class="sub small">データは、このスマホのブラウザだけに保存されています。下のボタンでコピーし、メモアプリなどに保存しておけます。</p>
+    <div class="row">
+      <button class="btn line" id="expBtn">📋 データをコピー</button>
+      <button class="btn line" id="impToggle">データを読み込む</button>
+    </div>
+    <div id="impArea" class="hidden" style="margin-top:10px">
+      <textarea id="impText" placeholder="コピーしておいたデータを貼り付け" style="min-height:90px;font-family:monospace;font-size:13px"></textarea>
+      <button class="btn block" id="impBtn" style="margin-top:6px">読み込む</button>
+    </div>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button data-v="learn"><span class="ic">📘</span>学ぶ</button>
+  <button data-v="practice"><span class="ic">🎤</span>練習</button>
+  <button data-v="stock"><span class="ic">🗂</span>ストック</button>
+  <button data-v="record"><span class="ic">📈</span>記録</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- 問題データ（オリジナル） ---------------- */
+const THEMES = ["テクノロジー","環境","仕事","教育","健康","地域・社会","お金・買い物","旅行・文化"];
+const QS = [
+ {t:0,n:3,q:"Some people say that students should be allowed to use AI tools to do their homework. What do you think about that?",ja:"生徒が宿題にAIツールを使うことを許すべきだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. AI tools can explain difficult points in an easy way. Also, students can learn more quickly by checking their answers with AI.",
+  x:"I disagree. If students use AI to do their homework, they will not think by themselves. As a result, they will not improve their skills."},
+ {t:0,n:4,q:"Do you think more companies will use robots instead of workers in the future?",ja:"将来、労働者の代わりにロボットを使う会社が増えると思いますか。",
+  y:"Many companies don't have enough workers these days. Also, robots can work all day without getting tired.",
+  x:"Many jobs need human communication skills. For example, customers want to talk with real people at hotels and hospitals."},
+ {t:0,n:3,q:"Some people say that children today spend too much time on smartphones. What do you think about that?",ja:"最近の子どもはスマートフォンに時間を使いすぎだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Many children play games or watch videos for many hours every day. This can be bad for their eyes and their sleep.",
+  x:"I disagree. Smartphones are useful for studying and getting information. Also, children can keep in touch with their families easily."},
+ {t:0,n:4,q:"Do you think it is a good idea for schools to use tablets instead of paper textbooks?",ja:"学校が紙の教科書の代わりにタブレットを使うのは良い考えだと思いますか。",
+  y:"Tablets are lighter than paper textbooks, so students don't have to carry heavy bags. Also, they can watch videos to understand lessons better.",
+  x:"Looking at screens for a long time is bad for students' eyes. Also, some students may play games on their tablets during class."},
+
+ {t:1,n:3,q:"Some people say that stores should stop giving plastic bags to customers. What do you think about that?",ja:"店は客にレジ袋を渡すのをやめるべきだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Plastic bags cause serious pollution in the ocean. If people bring their own bags, we can reduce a lot of waste.",
+  x:"I disagree. Plastic bags are useful when people buy things suddenly. Also, many people reuse them as garbage bags at home."},
+ {t:1,n:4,q:"Do you think people should use public transportation more often instead of cars?",ja:"人々は車の代わりに、もっと公共交通機関を使うべきだと思いますか。",
+  y:"Cars produce a lot of CO2, which causes global warming. Also, if more people take trains and buses, there will be less traffic.",
+  x:"In the countryside, there are not many trains or buses. People there need cars to go shopping or to the hospital."},
+ {t:1,n:3,q:"Some people say that companies should do more to protect the environment. What do you think about that?",ja:"企業は環境を守るためにもっと努力すべきだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Companies produce a lot of waste and use a lot of energy. If they use clean energy, it will have a big effect on the environment.",
+  x:"I disagree. Many companies are already trying hard, for example by reducing plastic packaging. I think each person should make more efforts, too."},
+ {t:1,n:4,q:"Do you think more people will buy electric cars in the future?",ja:"将来、電気自動車を買う人は増えると思いますか。",
+  y:"Electric cars are better for the environment than gasoline cars. Also, the number of charging stations is increasing.",
+  x:"Electric cars are still more expensive than gasoline cars. Also, it takes a long time to charge them."},
+
+ {t:2,n:3,q:"Some people say that working from home is better than working in an office. What do you think about that?",ja:"会社で働くより在宅勤務の方が良いと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. People don't have to spend time commuting, so they can use that time for their families. Also, they can concentrate in a quiet place.",
+  x:"I disagree. It is easier to communicate with coworkers face to face in an office. Also, some people find it hard to concentrate at home."},
+ {t:2,n:4,q:"Do you think it is good for high school students to have part-time jobs?",ja:"高校生がアルバイトをするのは良いことだと思いますか。",
+  y:"Students can learn how to communicate with many kinds of people. They can also learn the value of money.",
+  x:"Students may not have enough time to study. Also, they may get too tired to concentrate in class."},
+ {t:2,n:3,q:"Some people say that young people should experience working abroad. What do you think about that?",ja:"若い人は海外で働く経験をするべきだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Working abroad helps young people improve their language skills. They can also learn about different cultures and ways of thinking.",
+  x:"I disagree. Living in a foreign country costs a lot of money. Also, young people can learn many important skills in their own country."},
+ {t:2,n:4,q:"Do you think more people will change jobs several times in the future?",ja:"将来、何度も転職する人は増えると思いますか。",
+  y:"Many people want to find jobs that match their skills and interests. Also, more companies are hiring people in the middle of their careers.",
+  x:"Many people prefer to work at one company for a long time because they feel safe. Also, changing jobs can be stressful."},
+
+ {t:3,n:3,q:"Some people say that school uniforms are not necessary. What do you think about that?",ja:"制服は必要ないと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Students can express their personality by choosing their own clothes. Also, uniforms are often expensive for parents.",
+  x:"I disagree. With uniforms, students don't have to think about what to wear every morning. Also, uniforms help students feel like members of their school."},
+ {t:3,n:4,q:"Do you think children should start studying a foreign language in elementary school?",ja:"子どもは小学校から外国語の勉強を始めるべきだと思いますか。",
+  y:"Young children can learn languages quickly. If they start early, they can communicate with people from other countries more easily in the future.",
+  x:"Children should first learn their own language well. Also, they already have many subjects to study in elementary school."},
+ {t:3,n:3,q:"Some people say that all students should do volunteer activities. What do you think about that?",ja:"すべての生徒がボランティア活動をするべきだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Students can learn how to help people in their community. It is also a good chance to meet people of different ages.",
+  x:"I disagree. People should do volunteer activities because they want to. If students are forced to do them, they will not enjoy them."},
+ {t:3,n:4,q:"Do you think online classes are as effective as classes at school?",ja:"オンライン授業は学校での授業と同じくらい効果があると思いますか。",
+  y:"Students can watch online classes again and again until they understand. Also, they can study anywhere at their own pace.",
+  x:"In online classes, it is difficult to ask teachers questions. Also, students cannot learn by talking with their classmates."},
+
+ {t:4,n:3,q:"Some people say that people today do not get enough exercise. What do you think about that?",ja:"最近の人は運動が足りていないと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Many people sit at their desks for many hours every day. Also, they use cars or trains instead of walking.",
+  x:"I disagree. Many people go to gyms or go jogging these days. Also, there are many smartphone apps that help people exercise."},
+ {t:4,n:4,q:"Do you think schools should serve healthier lunches?",ja:"学校はもっと健康的な給食を出すべきだと思いますか。",
+  y:"Many students do not eat enough vegetables at home. School lunches are a good chance for them to eat balanced meals.",
+  x:"School lunches in Japan are already healthy because experts plan them. Families should also think about healthy meals at home."},
+ {t:4,n:3,q:"Some people say that cities should build more free places for people to exercise. What do you think about that?",ja:"市は無料で運動できる場所をもっと作るべきだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. If there are free places such as parks with exercise equipment, more people will exercise. This will help people stay healthy.",
+  x:"I disagree. Building such places costs a lot of money. Cities should use the money for more important things, such as hospitals."},
+ {t:4,n:4,q:"Do you think it is important for people to have health checkups every year?",ja:"毎年健康診断を受けることは大切だと思いますか。",
+  y:"Health checkups can find diseases early. If people find a disease early, it is easier to cure it.",
+  x:"Health checkups can be expensive and take a lot of time. Also, young and healthy people don't need them every year."},
+
+ {t:5,n:3,q:"Some people say that people today do not know their neighbors well. What do you think about that?",ja:"最近の人は近所の人のことをよく知らないと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Many people live in apartments and are busy with work. They don't have chances to talk with their neighbors.",
+  x:"I disagree. Many towns hold local events such as festivals. People can get to know their neighbors at these events."},
+ {t:5,n:4,q:"Do you think more elderly people should keep working?",ja:"もっと多くの高齢者が働き続けるべきだと思いますか。",
+  y:"Elderly people have a lot of experience and skills. Also, working helps them stay healthy and active.",
+  x:"Elderly people should enjoy their free time after working for many years. Also, some jobs are too hard for them physically."},
+ {t:5,n:3,q:"Some people say that convenience stores do not need to be open 24 hours a day. What do you think about that?",ja:"コンビニは24時間営業する必要はないと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Few customers come late at night, so it wastes electricity. Also, the staff can work at healthier times.",
+  x:"I disagree. Some people work at night and need to buy things then. Also, convenience stores are safe places for people at night."},
+ {t:5,n:4,q:"Do you think more people will live in the countryside in the future?",ja:"将来、田舎に住む人は増えると思いますか。",
+  y:"Many people can work from home now, so they don't have to live in big cities. Also, houses in the countryside are cheaper.",
+  x:"There are more jobs and schools in big cities. Also, it is inconvenient to live without trains and stores nearby."},
+
+ {t:6,n:4,q:"Today, many people shop online. Do you think this will continue to increase in the future?",ja:"今日、多くの人がネットで買い物をします。これは今後も増え続けると思いますか。",
+  y:"Online shopping is very convenient because people can buy things anytime. Also, things are delivered to their homes quickly.",
+  x:"Many people like to see and touch products before buying them. Also, shopping at stores can be a fun experience with friends."},
+ {t:6,n:3,q:"Some people say that cashless payment is better than using cash. What do you think about that?",ja:"キャッシュレス決済の方が現金より良いと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Paying with a smartphone is quick and easy. Also, people don't have to worry about carrying a lot of money.",
+  x:"I disagree. Some elderly people find cashless payment difficult to use. Also, it is easy to spend too much money without noticing."},
+ {t:6,n:3,q:"Some people say that people buy too many things they do not need. What do you think about that?",ja:"人々は必要のない物を買いすぎていると言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Many people buy things just because they are on sale. As a result, they often throw them away without using them.",
+  x:"I disagree. More people are buying used items or sharing things these days. They are becoming more careful about what they buy."},
+ {t:6,n:4,q:"Do you think children should get pocket money from their parents?",ja:"子どもは親からおこづかいをもらうべきだと思いますか。",
+  y:"Children can learn how to manage money by themselves. They can also learn to save money for things they really want.",
+  x:"Children may spend money on useless things. Parents should buy what their children need instead."},
+
+ {t:7,n:3,q:"Some people say that Japan should welcome more foreign tourists. What do you think about that?",ja:"日本はもっと外国人観光客を受け入れるべきだと言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Tourists spend a lot of money, and this helps local businesses. Also, they can learn about Japanese culture.",
+  x:"I disagree. Too many tourists cause problems such as crowded trains and noise. People who live in tourist areas may have trouble."},
+ {t:7,n:4,q:"Do you think it is better to travel with a tour group than alone?",ja:"一人旅よりツアーで旅行する方が良いと思いますか。",
+  y:"Tour groups plan everything, so travelers don't have to worry. It is also safer, especially in foreign countries.",
+  x:"When people travel alone, they can go wherever they want. They can also change their plans freely."},
+ {t:7,n:3,q:"Some people say that traditional festivals are becoming less important. What do you think about that?",ja:"伝統的なお祭りは重要ではなくなってきていると言う人がいます。あなたはどう思いますか。",
+  y:"I agree. Many young people move to big cities and do not join local festivals. As a result, some festivals are disappearing.",
+  x:"I disagree. Traditional festivals bring people in the community together. Also, many tourists come to see them."},
+ {t:7,n:4,q:"Do you think museums should be free for everyone?",ja:"博物館や美術館は誰でも無料にすべきだと思いますか。",
+  y:"If museums are free, more people can enjoy art and history. This is especially good for students and families.",
+  x:"Museums need money to take care of their collections. If they are free, they may not be able to hold good exhibitions."}
+];
+QS.forEach((q,i)=>q.id="q"+i);
+
+/* ---------------- 保存 ---------------- */
+const KEY="eiken2-opinion-v1";
+let S={stock:[],log:[],exam:"",custom:[]};
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(S,o);}}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+load();
+function allQs(){return QS.concat(S.custom||[]);}
+
+/* ---------------- 共通 ---------------- */
+const $=id=>document.getElementById(id);
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),1800);}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function today(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+async function copyText(txt){
+  try{await navigator.clipboard.writeText(txt);toast("コピーしました");return true;}
+  catch(e){
+    const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();
+    let ok=false;try{ok=document.execCommand("copy");}catch(_){}
+    ta.remove();toast(ok?"コピーしました":"コピーできませんでした");return ok;
+  }
+}
+function sideLabel(q,s){return q.n===3?(s==="y"?"I agree":"I disagree"):(s==="y"?"Yes":"No");}
+function sideJa(q,s){return q.n===3?(s==="y"?"賛成":"反対"):(s==="y"?"Yes":"No");}
+function modelText(q,s){const t=s==="y"?q.y:q.x;return q.n===4?(s==="y"?"Yes. → (Why?) → ":"No. → (Why not?) → ")+t:t;}
+
+/* ---------------- ナビ ---------------- */
+function go(v){
+  document.querySelectorAll(".view").forEach(e=>e.classList.toggle("on",e.id==="v-"+v));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  if(v==="stock")renderStock();
+  if(v==="record")renderRecord();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+/* ---------------- 試験日ヘッダー ---------------- */
+function daysLeft(){
+  if(!S.exam)return null;
+  const a=new Date(S.exam+"T00:00:00"),b=new Date(today()+"T00:00:00");
+  return Math.round((a-b)/86400000);
+}
+function renderHeader(){
+  const d=daysLeft();
+  $("hdrCount").textContent=d===null?"記録タブで試験日を設定すると、残り日数が出ます":(d>0?`二次試験まで あと ${d} 日`:(d===0?"今日が本番！落ち着いて、意見と理由2つ。":"試験日を過ぎました。お疲れさま！"));
+}
+
+/* ---------------- 練習 ---------------- */
+let fTheme=-1,fType=0,cur=null,side=null,timerH=null,t0=0,elapsed=0,lastAnswer="";
+function renderChips(){
+  const tc=$("themeChips");
+  tc.innerHTML=[`<button class="chip ${fTheme===-1?"on":""}" data-t="-1">すべて</button>`].concat(THEMES.map((t,i)=>`<button class="chip ${fTheme===i?"on":""}" data-t="${i}">${t}</button>`)).join("");
+  tc.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{fTheme=+c.dataset.t;renderChips();nextQuestion();});
+  const ty=$("typeChips");
+  ty.innerHTML=[[0,"No.3・4 両方"],[3,"No.3 だけ"],[4,"No.4 だけ"]].map(([v,l])=>`<button class="chip ${fType===v?"on":""}" data-v="${v}">${l}</button>`).join("");
+  ty.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{fType=+c.dataset.v;renderChips();nextQuestion();});
+}
+function pool(){return allQs().filter(q=>(fTheme===-1||q.t===fTheme)&&(fType===0||q.n===fType));}
+function nextQuestion(q){
+  const p=pool();
+  if(!q){
+    if(!p.length){toast("この条件の問題がありません");return;}
+    const done=new Set(S.log.map(l=>l.qid));
+    const fresh=p.filter(x=>!done.has(x.id)&&(!cur||x.id!==cur.id));
+    const src=fresh.length?fresh:p.filter(x=>!cur||x.id!==cur.id);
+    q=(src.length?src:p)[Math.floor(Math.random()*(src.length?src.length:p.length))];
+  }
+  cur=q;side=null;stopTimer();
+  $("qNo").textContent="No."+q.n;$("qNo").className="tag"+(q.n===4?" t4":"");
+  $("qTheme").textContent=THEMES[q.t]+(q.custom?"・AI作成":"");
+  $("qEn").textContent=q.q;$("qJa").textContent=q.ja||"";$("qJa").classList.add("hidden");$("jaBtn").textContent="日本語訳を見る";
+  $("sideY").textContent=q.n===3?"I agree（賛成）":"Yes";
+  $("sideN").textContent=q.n===3?"I disagree（反対）":"No";
+  $("stepSide").classList.remove("hidden");
+  $("stepAnswer").classList.add("hidden");$("stepCheck").classList.add("hidden");
+  $("ans").value="";
+}
+$("jaBtn").onclick=()=>{const h=$("qJa").classList.toggle("hidden");$("jaBtn").textContent=h?"日本語訳を見る":"日本語訳を隠す";};
+$("nextQ").onclick=()=>nextQuestion();
+$("nextQ2").onclick=()=>{nextQuestion();window.scrollTo(0,0);};
+$("sideY").onclick=()=>startAnswer("y");
+$("sideN").onclick=()=>startAnswer("x");
+
+function startAnswer(s){
+  side=s;
+  $("stepSide").classList.add("hidden");
+  $("stepCheck").classList.add("hidden");
+  $("stepAnswer").classList.remove("hidden");
+  const lab=sideLabel(cur,s);
+  $("tmpl").innerHTML=cur.n===3
+    ?`<b>${lab}.</b> → 理由① <b>～.</b> → <b>Also, / For example,</b> ～.`
+    :`<b>${lab}.</b>（Why${s==="x"?" not":""}? と聞かれたつもりで）→ 理由① ～. → <b>Also, / For example,</b> ～.`;
+  $("ans").value=cur.n===3?lab+". ":"";
+  $("ans").placeholder=cur.n===4?"理由を2文で（例: Online shopping is convenient. Also, ...）":"ここに英語で答えを入力";
+  startTimer();
+  document.getElementById("stepAnswer").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function startTimer(){stopTimer();t0=Date.now();elapsed=0;$("tm").textContent="0";timerH=setInterval(()=>{elapsed=Math.floor((Date.now()-t0)/1000);$("tm").textContent=elapsed;},250);}
+function stopTimer(){if(timerH){clearInterval(timerH);timerH=null;elapsed=Math.floor((Date.now()-t0)/1000);}}
+
+const CONN=/\b(also|first|second|for example|in addition|this is because|because|as a result|moreover|besides|so)\b/i;
+function analyze(text){
+  const clean=text.trim();
+  const words=clean?clean.split(/\s+/).filter(w=>/[a-z]/i.test(w)).length:0;
+  const sents=clean?clean.split(/[.!?]+/).map(s=>s.trim()).filter(s=>s.split(/\s+/).length>=2).length:0;
+  const opener=cur.n===3?/^(i\s+(agree|disagree|think|don't think|do not think))/i.test(clean):true;
+  const conn=CONN.test(clean);
+  const jp=/[ぁ-んァ-ン一-龥]/.test(clean);
+  return {words,sents,opener,conn,jp};
+}
+$("doneBtn").onclick=()=>{
+  stopTimer();stopDict();
+  const text=$("ans").value.trim();
+  lastAnswer=text;
+  const a=analyze(text);
+  const tags=[];
+  tags.push(`<span>${elapsed}秒</span>`);
+  tags.push(`<span class="${a.words>=20?"good":"bad"}">${a.words}語${a.words<20?"（少なめ）":""}</span>`);
+  const minS=cur.n===3?3:2;
+  tags.push(`<span class="${a.sents>=minS?"good":"bad"}">${a.sents}文${a.sents<minS?"（理由を足そう）":""}</span>`);
+  if(cur.n===3)tags.push(`<span class="${a.opener?"good":"bad"}">${a.opener?"最初に意見 ✓":"最初に I agree / I disagree を"}</span>`);
+  tags.push(`<span class="${a.conn?"good":"bad"}">${a.conn?"つなぎ言葉 ✓":"Also / For example を使おう"}</span>`);
+  if(a.jp)tags.push(`<span class="bad">日本語が入っています</span>`);
+  $("autoTags").innerHTML=tags.join("");
+  const items=["声に出して最後まで言えた","最初に意見（I agree / Yes など）をはっきり言えた","理由を2つ（または理由＋例）言えた","質問のテーマからずれていない","長い沈黙なしで話し始められた"];
+  $("selfChecks").innerHTML=items.map(t=>`<label><input type="checkbox"> <span>${t}</span></label>`).join("");
+  const other=side==="y"?"x":"y";
+  $("modelMine").innerHTML=`<div class="model ${side==="x"?"n":""}"><span class="lab">お手本（${sideJa(cur,side)}）</span>${esc(modelText(cur,side))} <button class="linkbtn hidden spk" data-s="${side}">🔊</button></div>`;
+  $("modelOther").innerHTML=`<div class="model ${other==="x"?"n":""}"><span class="lab">お手本（${sideJa(cur,other)}）</span>${esc(modelText(cur,other))} <button class="linkbtn hidden spk" data-s="${other}">🔊</button></div>`;
+  $("modelOther").classList.add("hidden");$("showOther").classList.remove("hidden");
+  $("aiOut").innerHTML="";
+  $("retryOther").textContent=`${sideJa(cur,other)}の立場でも`;
+  wireSpeakers();
+  $("stepAnswer").classList.add("hidden");$("stepCheck").classList.remove("hidden");
+  S.log.push({qid:cur.id,d:today(),s:elapsed});save();
+  $("stepCheck").scrollIntoView({behavior:"smooth",block:"start"});
+};
+$("showOther").onclick=()=>{$("modelOther").classList.remove("hidden");$("showOther").classList.add("hidden");};
+$("retrySame").onclick=()=>startAnswer(side);
+$("retryOther").onclick=()=>startAnswer(side==="y"?"x":"y");
+$("saveBtn").onclick=()=>{
+  if(!lastAnswer){toast("答えが空です");return;}
+  S.stock.unshift({id:"s"+Date.now(),qid:cur.id,q:cur.q,ja:cur.ja||"",t:cur.t,n:cur.n,side,text:lastAnswer,d:today(),m:false});
+  save();toast("ストックに保存しました");
+};
+
+function promptFor(q,s,text){
+  return `あなたは英検2級の二次試験（面接）の採点に詳しい英語の先生です。高校1年生の答えを、やさしく分かりやすく添削してください。
+
+【問題】No.${q.n}
+${q.q}
+【選んだ立場】${sideLabel(q,s)}
+【生徒の答え】
+${q.n===4?sideLabel(q,s)+". (Why"+(s==="x"?" not":"")+"?) ":""}${text}
+
+次のことを日本語で教えてください。
+1. 5点満点で何点くらいか（英検2級の面接の基準で）
+2. 良かったところ
+3. 直すとよいところ（文法のまちがい、理由が足りないなど）
+4. 同じ意見のまま、2級として自然な答え（英語で2〜3文、高校生が言えるレベル）`;
+}
+$("copyPrompt").onclick=()=>{if(!lastAnswer){toast("答えが空です");return;}copyText(promptFor(cur,side,lastAnswer));};
+
+/* ---------------- ストック ---------------- */
+let sTheme=-1;
+function renderStock(){
+  const sc=$("stockChips");
+  sc.innerHTML=[`<button class="chip ${sTheme===-1?"on":""}" data-t="-1">すべて</button>`,`<button class="chip ${sTheme===-2?"on":""}" data-t="-2">⭐未マスター</button>`].concat(THEMES.map((t,i)=>`<button class="chip ${sTheme===i?"on":""}" data-t="${i}">${t}</button>`)).join("");
+  sc.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{sTheme=+c.dataset.t;renderStock();});
+  const list=S.stock.filter(x=>sTheme===-1||(sTheme===-2?!x.m:x.t===sTheme));
+  const el=$("stockList");
+  if(!list.length){el.innerHTML=`<p class="sub small">${S.stock.length?"この条件のストックはありません。":"まだストックがありません。「練習」で答えて保存しましょう。"}</p>`;return;}
+  el.innerHTML=list.map(x=>{
+    const q={n:x.n};
+    return `<div class="stock-item" data-id="${x.id}">
+      <div><span class="tag ${x.n===4?"t4":""}">No.${x.n}</span><span class="tag ${x.side==="y"?"yes":"no"}">${sideJa(q,x.side)}</span><span class="small sub">${THEMES[x.t]||""}・${x.d}</span></div>
+      <div class="qen" style="font-size:16px;margin:6px 0">${esc(x.q)}</div>
+      <button class="linkbtn rev">答えを見る</button>
+      <div class="ans hidden">${esc(x.text)}</div>
+      <div class="row hidden act" style="margin-top:6px">
+        <button class="btn line mst" style="padding:8px 10px;font-size:13px">${x.m?"✅ 覚えた":"⭐ 覚えたにする"}</button>
+        <button class="btn line edt" style="padding:8px 10px;font-size:13px">編集</button>
+        <button class="btn line del" style="padding:8px 10px;font-size:13px;color:var(--no)">削除</button>
+      </div>
+    </div>`;}).join("");
+  el.querySelectorAll(".stock-item").forEach(it=>{
+    const id=it.dataset.id,x=S.stock.find(s=>s.id===id);
+    it.querySelector(".rev").onclick=e=>{it.querySelector(".ans").classList.remove("hidden");it.querySelector(".act").classList.remove("hidden");e.target.classList.add("hidden");};
+    it.querySelector(".mst").onclick=()=>{x.m=!x.m;save();renderStock();};
+    it.querySelector(".del").onclick=e=>{
+      if(e.target.dataset.arm){S.stock=S.stock.filter(s=>s.id!==id);save();renderStock();toast("削除しました");}
+      else{e.target.dataset.arm="1";e.target.textContent="本当に削除？";setTimeout(()=>{if(e.target){delete e.target.dataset.arm;e.target.textContent="削除";}},3000);}
+    };
+    it.querySelector(".edt").onclick=()=>{
+      const a=it.querySelector(".ans");
+      a.outerHTML=`<textarea class="ed" style="min-height:110px;margin-top:6px">${esc(x.text)}</textarea><button class="btn block sv" style="margin-top:6px">保存</button>`;
+      it.querySelector(".sv").onclick=()=>{x.text=it.querySelector(".ed").value.trim();save();renderStock();toast("保存しました");};
+      it.querySelector(".act").classList.add("hidden");
+    };
+  });
+}
+$("quizBtn").onclick=()=>{
+  const p=S.stock.filter(x=>!x.m);const src=p.length?p:S.stock;
+  if(!src.length){toast("先にストックを作りましょう");return;}
+  const x=src[Math.floor(Math.random()*src.length)];
+  sTheme=-1;renderStock();
+  const it=document.querySelector(`.stock-item[data-id="${x.id}"]`);
+  if(it){
+    document.querySelectorAll(".stock-item").forEach(e=>e.style.display=e===it?"":"none");
+    it.insertAdjacentHTML("beforeend",`<p class="small sub" style="margin-top:8px">声に出して言ってから「答えを見る」を押しましょう。</p><button class="btn ghost block allbk">一覧にもどる</button>`);
+    it.querySelector(".allbk").onclick=()=>renderStock();
+  }
+};
+
+/* ---------------- 記録 ---------------- */
+function renderRecord(){
+  $("examDate").value=S.exam||"";
+  const d=daysLeft();$("examLeft").textContent=d===null?"":(d>=0?`あと ${d} 日`:"");
+  $("stTotal").textContent=S.log.length;
+  const days=[...new Set(S.log.map(l=>l.d))].sort();
+  $("stDays").textContent=days.length;
+  let st=0;const set=new Set(days);let c=new Date(today()+"T00:00:00");
+  if(!set.has(today()))c.setDate(c.getDate()-1);
+  while(true){const k=c.getFullYear()+"-"+String(c.getMonth()+1).padStart(2,"0")+"-"+String(c.getDate()).padStart(2,"0");if(set.has(k)){st++;c.setDate(c.getDate()-1);}else break;}
+  $("stStreak").textContent=st;
+  $("themeBars").innerHTML=THEMES.map((t,i)=>{
+    const n=S.stock.filter(s=>s.t===i).length;const goal=4;
+    return `<div class="small" style="display:flex;justify-content:space-between"><span>${t}</span><span class="sub">${n} / ${goal}</span></div><div class="bar"><i style="width:${Math.min(100,n/goal*100)}%"></i></div>`;
+  }).join("")+`<p class="small sub">目標：各テーマ4つ（賛成・反対の両方あると強い！）</p>`;
+}
+$("examDate").onchange=e=>{S.exam=e.target.value;save();renderRecord();renderHeader();};
+$("expBtn").onclick=()=>copyText(JSON.stringify(S));
+$("impToggle").onclick=()=>$("impArea").classList.toggle("hidden");
+$("impBtn").onclick=()=>{
+  try{const o=JSON.parse($("impText").value);if(!o||!Array.isArray(o.stock))throw 0;S=Object.assign({stock:[],log:[],exam:"",custom:[]},o);save();renderRecord();renderHeader();toast("読み込みました");$("impText").value="";$("impArea").classList.add("hidden");}
+  catch(e){toast("データの形が正しくありません");}
+};
+
+/* ---------------- Claude の機能（使える環境だけ表示） ---------------- */
+let TTS=null,DICT=null,SAMPLE=null;
+function wireSpeakers(){
+  document.querySelectorAll(".spk").forEach(b=>{
+    if(!TTS)return;b.classList.remove("hidden");
+    b.onclick=()=>{const t=b.dataset.s==="y"?cur.y:cur.x;const pre=cur.n===4?(b.dataset.s==="y"?"Yes. ":"No. "):"";TTS.speak(pre+t,{language:"en",rate:.9}).catch(()=>{});};
+  });
+}
+$("speakQ").onclick=()=>{if(TTS&&cur)TTS.speak(cur.q,{language:"en",rate:.9}).catch(()=>{});};
+
+let dictOn=false,dictBase="";
+function stopDict(){if(DICT&&dictOn){DICT.stop().catch(()=>{});}}
+$("dictBtn").onclick=()=>{
+  if(!DICT)return;
+  if(dictOn){stopDict();return;}
+  dictBase=$("ans").value.replace(/\s*$/," ");
+  DICT.start().catch(err=>{if(err&&err.code==="not_granted"){$("dictBtn").classList.add("hidden");}toast("音声入力を開始できませんでした");});
+};
+
+async function aiFeedback(){
+  const btn=$("aiBtn");btn.disabled=true;btn.innerHTML='<span class="spin"></span> 添削中…';
+  try{
+    const res=await SAMPLE.json(promptFor(cur,side,lastAnswer)+`
+
+必ず次のJSONだけで答えてください：
+{"score":0から5の整数,"good":"良かったところ（日本語・1〜2文）","fix":["直すとよいところ（日本語）を1〜3個"],"better":"自然な答え（英語2〜3文）"}`,{modelTier:"default"});
+    const r=res||{};
+    $("aiOut").innerHTML=`<div class="ai">
+      <div><span class="score">${esc(r.score??"-")}</span> / 5 点くらい</div>
+      <div style="margin-top:6px"><b>良かったところ</b><br>${esc(r.good||"")}</div>
+      <div style="margin-top:6px"><b>直すとよいところ</b><ul>${(r.fix||[]).map(f=>`<li>${esc(f)}</li>`).join("")}</ul></div>
+      <div><b>こう言うともっと良い</b><div class="fix">${esc(r.better||"")}</div></div>
+      <button class="btn line block" id="saveBetter" style="margin-top:8px">この答えをストックに保存</button>
+    </div>`;
+    $("saveBetter").onclick=()=>{S.stock.unshift({id:"s"+Date.now(),qid:cur.id,q:cur.q,ja:cur.ja||"",t:cur.t,n:cur.n,side,text:r.better||"",d:today(),m:false});save();toast("保存しました");};
+  }catch(e){
+    if(e&&e.code==="not_granted"){$("aiArea").classList.add("hidden");}
+    $("aiOut").innerHTML=`<p class="small sub">添削できませんでした。少し待ってから試すか、「AI添削用の文章をコピー」を使ってください。</p>`;
+  }finally{btn.disabled=false;btn.innerHTML="✨ AIに添削してもらう";}
+}
+$("aiBtn").onclick=()=>{if(SAMPLE&&lastAnswer)aiFeedback();else toast("答えが空です");};
+
+async function aiNewQuestion(){
+  const btn=$("aiNewQ");btn.disabled=true;btn.innerHTML='<span class="spin"></span> 作成中…';
+  const th=fTheme===-1?Math.floor(Math.random()*THEMES.length):fTheme;
+  const n=fType===0?(Math.random()<.5?3:4):fType;
+  const fmt=n===3?'"Some people say that ～. What do you think about that?" の形':'"Do you think ～?"（前に "Today, ～." を付けてもよい）の形';
+  try{
+    const r=await SAMPLE.json(`英検2級 二次試験 No.${n} の意見問題を、オリジナルで1問作ってください。テーマ：${THEMES[th]}。形式：${fmt}。
+既存の過去問をそのまま使わないこと。高校生が自分の意見を言いやすい身近な話題にしてください。
+お手本の答えは、英検2級レベルの短い文で2文（No.3は "I agree." / "I disagree." で始め、そのあとに理由2文）。No.4は Yes / No の後に続く理由の2文だけを書く。
+次のJSONだけで答えてください：
+{"q":"英語の質問","ja":"質問の日本語訳","y":"賛成/Yes側のお手本","x":"反対/No側のお手本"}`,{modelTier:"default"});
+    if(!r||!r.q)throw 0;
+    const q={id:"c"+Date.now(),t:th,n,q:r.q,ja:r.ja||"",y:r.y||"",x:r.x||"",custom:true};
+    S.custom=(S.custom||[]);S.custom.push(q);save();
+    nextQuestion(q);toast("新しい問題を作りました");
+  }catch(e){
+    if(e&&e.code==="not_granted")btn.classList.add("hidden");
+    toast("作れませんでした。少し待ってからどうぞ");
+  }finally{btn.disabled=false;btn.innerHTML="✨ AIが新しい問題を作る";}
+}
+$("aiNewQ").onclick=()=>{if(SAMPLE)aiNewQuestion();};
+
+(async function initClaude(){
+  if(!window.claude||typeof window.claude.use!=="function")return;
+  try{
+    const [t,d,s]=await Promise.all([
+      window.claude.use("tts").catch(()=>null),
+      window.claude.use("dictation").catch(()=>null),
+      window.claude.use("sample").catch(()=>null)
+    ]);
+    if(t){TTS=t;$("speakQ").classList.remove("hidden");wireSpeakers();}
+    if(d){
+      DICT=d;$("dictBtn").classList.remove("hidden");
+      d.onPartial(({text})=>{$("ans").value=dictBase+text;});
+      d.onFinal(({text})=>{dictBase=(dictBase+text).replace(/\s*$/," ");$("ans").value=dictBase;});
+      d.onState(({state})=>{dictOn=state==="listening";$("dictBtn").textContent=dictOn?"■ 音声入力を止める":"🎤 音声で入力";});
+    }
+    if(s){SAMPLE=s;$("aiArea").classList.remove("hidden");$("aiNewQ").classList.remove("hidden");}
+  }catch(e){}
+})();
+
+/* ---------------- 起動 ---------------- */
+renderHeader();renderChips();nextQuestion();go("learn");
+</script>
+</body>
+</html>
